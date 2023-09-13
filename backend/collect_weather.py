@@ -11,6 +11,8 @@ RETRY_PERIOD = 3600
 
 
 def get_weather(city):
+    """Запрос по API данных погоды в городе, который передается параметром."""
+
     url = f'{ENDPOINT}?q={city}&appid={APPID}&units={UNITS}&lang={LANG}'
 
     response = requests.get(url)
@@ -29,6 +31,8 @@ def get_weather(city):
 
 
 def get_city():
+    """Выборка всех городов из БД для передачи в функцию запроса погоды."""
+
     with sqlite3.connect(DB_PATH) as con:
         cur = con.cursor()
         response = cur.execute('SELECT id, name FROM cities_city;')
@@ -38,6 +42,8 @@ def get_city():
 
 
 def add_weather(city, temp=None, pressure=None, dt=None, humidity=None):
+    """Добавление в БД данных погоды, полученных по запросу API и городу."""
+
     with sqlite3.connect(DB_PATH) as con:
         cur = con.cursor()
         params = (dt, pressure, humidity, city, temp)
@@ -52,6 +58,7 @@ def add_weather(city, temp=None, pressure=None, dt=None, humidity=None):
 
 def main():
     cities = tuple(get_city())
+
     while True:
         for city in cities:
             city_id, city_name = city[0], city[1]

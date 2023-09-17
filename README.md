@@ -55,10 +55,10 @@ python manage.py download_cities --delete-existing
 ```
 
 
-Запустить работу приложения:
+Запустить работу приложения в контейнере:
 
 ```
-docker compose up
+docker compose up -d
 ```
 
 Проверить наполнение БД можно через инструменты просмотра БД 
@@ -67,9 +67,17 @@ docker compose up
 ```
 python manage.py createsuperuser
 ```
-- пройти в admin-панель по url-адресу
+- запустить сервер разработки
+```
+python manage.py runserver
+```
+- пройти в admin-панель по url-адресу с данными суперпользователя
 ```
 http://127.0.0.1:8000/admin/
 ```
+При завершении тестирования остановить работу контейнера:
 
+```
+docker compose down
+```
 

@@ -5,7 +5,7 @@ import sqlite3
 APPID = 'b55a9ba478028ce2cea598edde9a7960'
 UNITS = 'metric'
 LANG = 'ru'
-DB_PATH = "/app/db.sqlite3"
+DB_PATH = "db.sqlite3"
 ENDPOINT = 'http://api.openweathermap.org/data/2.5/weather'
 RETRY_PERIOD = 3600
 

@@ -36,7 +36,7 @@ class Command(BaseCommand):
 
         records = []
         with open(
-                "../data/cities.csv",
+                "./data/cities.csv",
                 encoding="utf-8",
                 newline=""
         ) as csvfile:

@@ -1,8 +1,11 @@
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+load_dotenv()
 
 SECRET_KEY = 'django-insecure-7u15332ll2$k0*g&57&w8z92+6%k3=n!)_nwo93--j6(63*95*'
 
@@ -59,8 +62,15 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR / 'db.sqlite3'),
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': os.path.join(BASE_DIR / 'db.sqlite3.bak'),
+
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.getenv('POSTGRES_DB', 'pg_db_weather'),
+        'USER': os.getenv('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'password'),
+        'PORT': os.getenv('DB_PORT', 5432),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
     }
 }
 

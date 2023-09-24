@@ -1,13 +1,34 @@
 import requests
 import time
-import sqlite3
+import psycopg2
+from backend.settings import DATABASES
+from dotenv import load_dotenv
+import os
 
-APPID = 'b55a9ba478028ce2cea598edde9a7960'
-UNITS = 'metric'
-LANG = 'ru'
-DB_PATH = "db.sqlite3"
+load_dotenv()
+
+# url-адрес API сервиса погоды
 ENDPOINT = 'http://api.openweathermap.org/data/2.5/weather'
+# Период отправки запросов к API
 RETRY_PERIOD = 3600
+# Ключ API сервиса
+APPID = os.getenv('APPID')
+# Система измерений, передаваемая параметром в запросе к API
+UNITS = 'metric'
+# Язык ответа, передаваемый параметром в запросе к API
+LANG = 'ru'
+
+# Переменные базы данных
+DB_NAME = DATABASES['default']['NAME']
+DB_HOST = DATABASES['default']['HOST']
+USER = DATABASES['default']['USER']
+PASSWORD = DATABASES['default']['PASSWORD']
+
+# Получение переменной хоста БД из окружения указанного в Dockerfile
+CONTAINER_DB_HOST = os.environ.get('CONTAINER_DB_HOST')
+# Изменение переменной хоста БД при запуске приложения в контейнере
+if CONTAINER_DB_HOST:
+    DB_HOST = CONTAINER_DB_HOST
 
 
 def get_weather(city):
@@ -33,10 +54,17 @@ def get_weather(city):
 def get_city():
     """Выборка всех городов из БД для передачи в функцию запроса погоды."""
 
-    with sqlite3.connect(DB_PATH) as con:
-        cur = con.cursor()
-        response = cur.execute('SELECT id, name FROM cities_city;')
-        con.commit()
+    con = psycopg2.connect(
+        user=USER,
+        password=PASSWORD,
+        host=DB_HOST,
+        database=DB_NAME)
+
+    with con.cursor() as cur:
+        cur.execute('SELECT id, name FROM cities_city;')
+        response = cur.fetchall()
+    con.commit()
+    con.close()
 
     return response
 
@@ -44,16 +72,23 @@ def get_city():
 def add_weather(city, temp=None, pressure=None, dt=None, humidity=None):
     """Добавление в БД данных погоды, полученных по запросу API и городу."""
 
-    with sqlite3.connect(DB_PATH) as con:
-        cur = con.cursor()
-        params = (dt, pressure, humidity, city, temp)
+    con = psycopg2.connect(
+        user=USER,
+        password=PASSWORD,
+        host=DB_HOST,
+        database=DB_NAME
+    )
+    cur = con.cursor()
+    params = (dt, pressure, humidity, city, temp)
 
-        cur.execute('''
-        INSERT INTO weather_weather(dt, pressure, humidity, city_id, temp)
-            VALUES (?, ?, ?, ?, ?);
-        ''', params)
+    query = '''
+    INSERT INTO weather_weather(dt, pressure, humidity, city_id, temp)
+        VALUES ('%s','%s','%s','%s','%s');
+    '''
+    cur.execute(query, params)
 
-        con.commit()
+    con.commit()
+    con.close()
 
 
 def main():
